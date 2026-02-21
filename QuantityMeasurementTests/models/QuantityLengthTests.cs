@@ -16,6 +16,24 @@ namespace QuantityMeasurementTests.Models
         }
 
         [TestMethod]
+        public void testEquality_InchToInch_SameValue()
+        {
+            var q1 = new QuantityLength(1.0, LengthUnit.Inches);
+            var q2 = new QuantityLength(1.0, LengthUnit.Inches);
+
+            Assert.IsTrue(q1.Equals(q2));
+        }
+
+        [TestMethod]
+        public void testEquality_FeetToInch_EquivalentValue()
+        {
+            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q2 = new QuantityLength(12.0, LengthUnit.Inches);
+
+            Assert.IsTrue(q1.Equals(q2));
+        }
+
+        [TestMethod]
         public void testEquality_InchToFeet_EquivalentValue()
         {
             var q1 = new QuantityLength(12.0, LengthUnit.Inches);
@@ -25,7 +43,7 @@ namespace QuantityMeasurementTests.Models
         }
 
         [TestMethod]
-        public void testEquality_DifferentValue()
+        public void testEquality_FeetToFeet_DifferentValue()
         {
             var q1 = new QuantityLength(2.0, LengthUnit.Feet);
             var q2 = new QuantityLength(1.0, LengthUnit.Feet);
@@ -34,11 +52,12 @@ namespace QuantityMeasurementTests.Models
         }
 
         [TestMethod]
-        public void testEquality_NullComparison()
+        public void testEquality_InchToInch_DifferentValue()
         {
-            var q = new QuantityLength(1.0, LengthUnit.Feet);
+            var q1 = new QuantityLength(2.0, LengthUnit.Inches);
+            var q2 = new QuantityLength(1.0, LengthUnit.Inches);
 
-            Assert.IsFalse(q.Equals(null));
+            Assert.IsFalse(q1.Equals(q2));
         }
 
         [TestMethod]
@@ -47,6 +66,14 @@ namespace QuantityMeasurementTests.Models
             var q = new QuantityLength(1.0, LengthUnit.Feet);
 
             Assert.IsTrue(q.Equals(q));
+        }
+
+        [TestMethod]
+        public void testEquality_NullComparison()
+        {
+            var q = new QuantityLength(1.0, LengthUnit.Feet);
+
+            Assert.IsFalse(q.Equals(null));
         }
     }
 }
