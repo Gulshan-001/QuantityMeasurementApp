@@ -21,20 +21,22 @@ namespace QuantityMeasurementApp.Models
             Unit = unit;
         }
 
-        // ---------------- BASE CONVERSION ----------------
+        // ---------------- CONVERSION ----------------
 
-        private double ConvertToFeet()
+        private double ConvertToBase()
         {
-            return Value * Unit.ToFeetFactor();
+            return Unit.ConvertToBaseUnit(Value);
         }
 
-        public double ConvertTo(LengthUnit targetUnit)
+        public QuantityLength ConvertTo(LengthUnit targetUnit)
         {
             if (!Enum.IsDefined(typeof(LengthUnit), targetUnit))
                 throw new ArgumentException("Unsupported target unit.");
 
-            double valueInFeet = ConvertToFeet();
-            return valueInFeet / targetUnit.ToFeetFactor();
+            double baseValue = ConvertToBase();
+            double convertedValue = targetUnit.ConvertFromBaseUnit(baseValue);
+
+            return new QuantityLength(convertedValue, targetUnit);
         }
 
         public static double Convert(double value, LengthUnit source, LengthUnit target)
@@ -42,35 +44,21 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(value))
                 throw new ArgumentException("Value must be finite.");
 
-            if (!Enum.IsDefined(typeof(LengthUnit), source) ||
-                !Enum.IsDefined(typeof(LengthUnit), target))
-                throw new ArgumentException("Unsupported unit.");
-
-            double valueInFeet = value * source.ToFeetFactor();
-            return valueInFeet / target.ToFeetFactor();
+            double baseValue = source.ConvertToBaseUnit(value);
+            return target.ConvertFromBaseUnit(baseValue);
         }
 
-        // ---------------- PRIVATE ADDITION HELPER (UC7 DRY) ----------------
-
-        private static double AddInFeet(QuantityLength first, QuantityLength second)
-        {
-            return first.ConvertToFeet() + second.ConvertToFeet();
-        }
-
-        // ---------------- ADDITION (UC6 - implicit target) ----------------
+        // ---------------- ADDITION (UC6) ----------------
 
         public QuantityLength Add(QuantityLength other)
         {
             if (other is null)
                 throw new ArgumentException("Other length cannot be null.");
 
-            double sumInFeet = AddInFeet(this, other);
-            double resultInOriginalUnit = sumInFeet / this.Unit.ToFeetFactor();
-
-            return new QuantityLength(resultInOriginalUnit, this.Unit);
+            return AddInternal(this, other, this.Unit);
         }
 
-        // ---------------- ADDITION (UC7 - explicit target) ----------------
+        // ---------------- ADDITION WITH TARGET (UC7) ----------------
 
         public static QuantityLength Add(
             QuantityLength first,
@@ -83,8 +71,21 @@ namespace QuantityMeasurementApp.Models
             if (!Enum.IsDefined(typeof(LengthUnit), targetUnit))
                 throw new ArgumentException("Unsupported target unit.");
 
-            double sumInFeet = AddInFeet(first, second);
-            double resultValue = sumInFeet / targetUnit.ToFeetFactor();
+            return AddInternal(first, second, targetUnit);
+        }
+
+        // Centralized private helper (DRY)
+        private static QuantityLength AddInternal(
+            QuantityLength first,
+            QuantityLength second,
+            LengthUnit targetUnit)
+        {
+            double firstBase = first.Unit.ConvertToBaseUnit(first.Value);
+            double secondBase = second.Unit.ConvertToBaseUnit(second.Value);
+
+            double sumBase = firstBase + secondBase;
+
+            double resultValue = targetUnit.ConvertFromBaseUnit(sumBase);
 
             return new QuantityLength(resultValue, targetUnit);
         }
@@ -99,12 +100,15 @@ namespace QuantityMeasurementApp.Models
             if (obj is not QuantityLength other)
                 return false;
 
-            return Math.Abs(ConvertToFeet() - other.ConvertToFeet()) < Epsilon;
+            return Math.Abs(
+                this.Unit.ConvertToBaseUnit(this.Value) -
+                other.Unit.ConvertToBaseUnit(other.Value)
+            ) < Epsilon;
         }
 
         public override int GetHashCode()
         {
-            return ConvertToFeet().GetHashCode();
+            return Unit.ConvertToBaseUnit(Value).GetHashCode();
         }
 
         public override string ToString()
