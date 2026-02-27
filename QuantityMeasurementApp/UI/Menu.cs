@@ -69,13 +69,23 @@ namespace QuantityMeasurementApp.UI
         }
 
         private static void Add()
-        {
-            if (!ReadQuantity(out var q1) || !ReadQuantity(out var q2))
-                return;
+{
+    if (!ReadQuantity(out var q1) || !ReadQuantity(out var q2))
+        return;
 
-            var result = q1.Add(q2);
-            Console.WriteLine($"Result: {result.Value} {result.Unit}");
-        }
+    Console.Write("Enter target unit for result: ");
+    string? targetInput = Console.ReadLine();
+
+    if (!Enum.TryParse(targetInput, true, out LengthUnit targetUnit))
+    {
+        Console.WriteLine("Invalid target unit.");
+        return;
+    }
+
+    var result = QuantityLength.Add(q1, q2, targetUnit);
+
+    Console.WriteLine($"Result: {result.Value} {result.Unit}");
+}
 
         private static bool ReadQuantity(out QuantityLength quantity)
         {

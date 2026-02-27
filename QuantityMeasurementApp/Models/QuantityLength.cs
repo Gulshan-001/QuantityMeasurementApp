@@ -50,22 +50,27 @@ namespace QuantityMeasurementApp.Models
             return valueInFeet / target.ToFeetFactor();
         }
 
-        // ---------------- ADDITION (UC6) ----------------
+        // ---------------- PRIVATE ADDITION HELPER (UC7 DRY) ----------------
+
+        private static double AddInFeet(QuantityLength first, QuantityLength second)
+        {
+            return first.ConvertToFeet() + second.ConvertToFeet();
+        }
+
+        // ---------------- ADDITION (UC6 - implicit target) ----------------
 
         public QuantityLength Add(QuantityLength other)
         {
             if (other is null)
                 throw new ArgumentException("Other length cannot be null.");
 
-            double thisInFeet = this.ConvertToFeet();
-            double otherInFeet = other.ConvertToFeet();
-
-            double sumInFeet = thisInFeet + otherInFeet;
-
+            double sumInFeet = AddInFeet(this, other);
             double resultInOriginalUnit = sumInFeet / this.Unit.ToFeetFactor();
 
             return new QuantityLength(resultInOriginalUnit, this.Unit);
         }
+
+        // ---------------- ADDITION (UC7 - explicit target) ----------------
 
         public static QuantityLength Add(
             QuantityLength first,
@@ -78,11 +83,7 @@ namespace QuantityMeasurementApp.Models
             if (!Enum.IsDefined(typeof(LengthUnit), targetUnit))
                 throw new ArgumentException("Unsupported target unit.");
 
-            double firstInFeet = first.ConvertToFeet();
-            double secondInFeet = second.ConvertToFeet();
-
-            double sumInFeet = firstInFeet + secondInFeet;
-
+            double sumInFeet = AddInFeet(first, second);
             double resultValue = sumInFeet / targetUnit.ToFeetFactor();
 
             return new QuantityLength(resultValue, targetUnit);
