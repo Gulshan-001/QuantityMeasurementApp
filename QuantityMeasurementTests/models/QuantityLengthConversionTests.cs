@@ -62,18 +62,18 @@ namespace QuantityMeasurementTests.Models
             Assert.AreEqual(-12.0, result, Epsilon);
         }
 
-[TestMethod]
-public void testConversion_InvalidValue_Throws()
-{
-    try
-    {
-        QuantityLength.Convert(double.NaN, LengthUnit.Feet, LengthUnit.Inches);
-        Assert.Fail("Expected ArgumentException was not thrown.");
-    }
-    catch (ArgumentException)
-    {
-        Assert.IsTrue(true);
-    }
-}
+        [TestMethod]
+        public void testConversion_InvalidValue_Throws()
+        {
+            try
+            {
+                QuantityLength.Convert(double.NaN, LengthUnit.Feet, LengthUnit.Inches);
+                Assert.Fail("Expected ArgumentException was not thrown.");
+            }
+            catch (ArgumentException)
+            {
+                return; // success
+            }
+        }
     }
 }

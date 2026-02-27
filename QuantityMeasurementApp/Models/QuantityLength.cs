@@ -14,9 +14,14 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(value))
                 throw new ArgumentException("Value must be a finite number.");
 
+            if (!Enum.IsDefined(typeof(LengthUnit), unit))
+                throw new ArgumentException("Unsupported unit.");
+
             Value = value;
             Unit = unit;
         }
+
+        // ---------------- BASE CONVERSION ----------------
 
         private double ConvertToFeet()
         {
@@ -44,6 +49,46 @@ namespace QuantityMeasurementApp.Models
             double valueInFeet = value * source.ToFeetFactor();
             return valueInFeet / target.ToFeetFactor();
         }
+
+        // ---------------- ADDITION (UC6) ----------------
+
+        public QuantityLength Add(QuantityLength other)
+        {
+            if (other is null)
+                throw new ArgumentException("Other length cannot be null.");
+
+            double thisInFeet = this.ConvertToFeet();
+            double otherInFeet = other.ConvertToFeet();
+
+            double sumInFeet = thisInFeet + otherInFeet;
+
+            double resultInOriginalUnit = sumInFeet / this.Unit.ToFeetFactor();
+
+            return new QuantityLength(resultInOriginalUnit, this.Unit);
+        }
+
+        public static QuantityLength Add(
+            QuantityLength first,
+            QuantityLength second,
+            LengthUnit targetUnit)
+        {
+            if (first is null || second is null)
+                throw new ArgumentException("Operands cannot be null.");
+
+            if (!Enum.IsDefined(typeof(LengthUnit), targetUnit))
+                throw new ArgumentException("Unsupported target unit.");
+
+            double firstInFeet = first.ConvertToFeet();
+            double secondInFeet = second.ConvertToFeet();
+
+            double sumInFeet = firstInFeet + secondInFeet;
+
+            double resultValue = sumInFeet / targetUnit.ToFeetFactor();
+
+            return new QuantityLength(resultValue, targetUnit);
+        }
+
+        // ---------------- EQUALITY ----------------
 
         public override bool Equals(object? obj)
         {
