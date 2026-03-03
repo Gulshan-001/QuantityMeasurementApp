@@ -11,8 +11,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testEquality_KgToGram()
         {
-            var a = new QuantityWeight(1.0, WeightUnit.Kilogram);
-            var b = new QuantityWeight(1000.0, WeightUnit.Gram);
+            var a = new Quantity<WeightUnit>(1.0, WeightUnit.Kilogram);
+            var b = new Quantity<WeightUnit>(1000.0, WeightUnit.Gram);
 
             Assert.IsTrue(a.Equals(b));
         }
@@ -20,7 +20,7 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testConversion_KgToPound()
         {
-            var result = new QuantityWeight(1.0, WeightUnit.Kilogram)
+            var result = new Quantity<WeightUnit>(1.0, WeightUnit.Kilogram)
                 .ConvertTo(WeightUnit.Pound);
 
             Assert.AreEqual(2.20462, result.Value, 1e-3);
@@ -29,8 +29,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_KgPlusGram()
         {
-            var a = new QuantityWeight(1.0, WeightUnit.Kilogram);
-            var b = new QuantityWeight(1000.0, WeightUnit.Gram);
+            var a = new Quantity<WeightUnit>(1.0, WeightUnit.Kilogram);
+            var b = new Quantity<WeightUnit>(1000.0, WeightUnit.Gram);
 
             var result = a.Add(b);
 
@@ -40,8 +40,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testWeightVsLength_NotEqual()
         {
-            var weight = new QuantityWeight(1.0, WeightUnit.Kilogram);
-            var length = new QuantityLength(1.0, LengthUnit.Feet);
+            var weight = new Quantity<WeightUnit>(1.0, WeightUnit.Kilogram);
+            var length = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
 
             Assert.IsFalse(weight.Equals(length));
         }

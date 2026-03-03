@@ -11,8 +11,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_SameUnit_FeetPlusFeet()
         {
-            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
-            var q2 = new QuantityLength(2.0, LengthUnit.Feet);
+            var q1 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var q2 = new Quantity<LengthUnit>(2.0, LengthUnit.Feet);
 
             var result = q1.Add(q2);
 
@@ -23,8 +23,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_CrossUnit_FeetPlusInches()
         {
-            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
-            var q2 = new QuantityLength(12.0, LengthUnit.Inches);
+            var q1 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var q2 = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
             var result = q1.Add(q2);
 
@@ -35,8 +35,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_CrossUnit_InchPlusFeet()
         {
-            var q1 = new QuantityLength(12.0, LengthUnit.Inches);
-            var q2 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q1 = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
+            var q2 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
 
             var result = q1.Add(q2);
 
@@ -47,8 +47,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_CrossUnit_YardPlusFeet()
         {
-            var q1 = new QuantityLength(1.0, LengthUnit.Yards);
-            var q2 = new QuantityLength(3.0, LengthUnit.Feet);
+            var q1 = new Quantity<LengthUnit>(1.0, LengthUnit.Yards);
+            var q2 = new Quantity<LengthUnit>(3.0, LengthUnit.Feet);
 
             var result = q1.Add(q2);
 
@@ -59,8 +59,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_WithZero()
         {
-            var q1 = new QuantityLength(5.0, LengthUnit.Feet);
-            var q2 = new QuantityLength(0.0, LengthUnit.Inches);
+            var q1 = new Quantity<LengthUnit>(5.0, LengthUnit.Feet);
+            var q2 = new Quantity<LengthUnit>(0.0, LengthUnit.Inches);
 
             var result = q1.Add(q2);
 
@@ -70,8 +70,8 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_NegativeValues()
         {
-            var q1 = new QuantityLength(5.0, LengthUnit.Feet);
-            var q2 = new QuantityLength(-2.0, LengthUnit.Feet);
+            var q1 = new Quantity<LengthUnit>(5.0, LengthUnit.Feet);
+            var q2 = new Quantity<LengthUnit>(-2.0, LengthUnit.Feet);
 
             var result = q1.Add(q2);
 
@@ -81,20 +81,19 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_Commutativity()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
             var result1 = a.Add(b);
             var result2 = b.Add(a);
 
-            // Compare using public API, not private method
             Assert.IsTrue(result1.Equals(result2));
         }
 
         [TestMethod]
         public void testAddition_NullSecondOperand()
         {
-            var q1 = new QuantityLength(1.0, LengthUnit.Feet);
+            var q1 = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
 
             try
             {

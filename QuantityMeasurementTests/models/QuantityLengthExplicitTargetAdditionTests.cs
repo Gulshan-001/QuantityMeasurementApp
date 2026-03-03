@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using QuantityMeasurementApp.Models;
+using System;
 
 namespace QuantityMeasurementTests.Models
 {
@@ -11,10 +12,10 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_ExplicitTargetUnit_Feet()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
-            var result = QuantityLength.Add(a, b, LengthUnit.Feet);
+            var result = a.Add(b, LengthUnit.Feet);
 
             Assert.AreEqual(2.0, result.Value, Epsilon);
             Assert.AreEqual(LengthUnit.Feet, result.Unit);
@@ -23,10 +24,10 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_ExplicitTargetUnit_Inches()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
-            var result = QuantityLength.Add(a, b, LengthUnit.Inches);
+            var result = a.Add(b, LengthUnit.Inches);
 
             Assert.AreEqual(24.0, result.Value, Epsilon);
             Assert.AreEqual(LengthUnit.Inches, result.Unit);
@@ -35,10 +36,10 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_ExplicitTargetUnit_Yards()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
-            var result = QuantityLength.Add(a, b, LengthUnit.Yards);
+            var result = a.Add(b, LengthUnit.Yards);
 
             Assert.AreEqual(0.666666, result.Value, 1e-4);
             Assert.AreEqual(LengthUnit.Yards, result.Unit);
@@ -47,24 +48,24 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testAddition_ExplicitTargetUnit_Commutativity()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
-            var result1 = QuantityLength.Add(a, b, LengthUnit.Yards);
-            var result2 = QuantityLength.Add(b, a, LengthUnit.Yards);
+            var result1 = a.Add(b, LengthUnit.Yards);
+            var result2 = b.Add(a, LengthUnit.Yards);
 
             Assert.IsTrue(result1.Equals(result2));
         }
 
         [TestMethod]
-        public void testAddition_ExplicitTargetUnit_NullTargetUnit()
+        public void testAddition_ExplicitTargetUnit_InvalidTargetUnit()
         {
-            var a = new QuantityLength(1.0, LengthUnit.Feet);
-            var b = new QuantityLength(12.0, LengthUnit.Inches);
+            var a = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            var b = new Quantity<LengthUnit>(12.0, LengthUnit.Inches);
 
             try
             {
-                QuantityLength.Add(a, b, (LengthUnit)999);
+                a.Add(b, (LengthUnit)999);
                 Assert.Fail("Expected exception was not thrown.");
             }
             catch (ArgumentException)

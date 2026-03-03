@@ -12,28 +12,36 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testConversion_FeetToInches()
         {
-            double result = QuantityLength.Convert(1.0, LengthUnit.Feet, LengthUnit.Inches);
+            var q = new Quantity<LengthUnit>(1.0, LengthUnit.Feet);
+            double result = q.ConvertTo(LengthUnit.Inches).Value;
+
             Assert.AreEqual(12.0, result, Epsilon);
         }
 
         [TestMethod]
         public void testConversion_InchesToFeet()
         {
-            double result = QuantityLength.Convert(24.0, LengthUnit.Inches, LengthUnit.Feet);
+            var q = new Quantity<LengthUnit>(24.0, LengthUnit.Inches);
+            double result = q.ConvertTo(LengthUnit.Feet).Value;
+
             Assert.AreEqual(2.0, result, Epsilon);
         }
 
         [TestMethod]
         public void testConversion_YardsToInches()
         {
-            double result = QuantityLength.Convert(1.0, LengthUnit.Yards, LengthUnit.Inches);
+            var q = new Quantity<LengthUnit>(1.0, LengthUnit.Yards);
+            double result = q.ConvertTo(LengthUnit.Inches).Value;
+
             Assert.AreEqual(36.0, result, Epsilon);
         }
 
         [TestMethod]
         public void testConversion_CentimetersToInches()
         {
-            double result = QuantityLength.Convert(2.54, LengthUnit.Centimeters, LengthUnit.Inches);
+            var q = new Quantity<LengthUnit>(2.54, LengthUnit.Centimeters);
+            double result = q.ConvertTo(LengthUnit.Inches).Value;
+
             Assert.AreEqual(1.0, result, 1e-4);
         }
 
@@ -42,8 +50,11 @@ namespace QuantityMeasurementTests.Models
         {
             double value = 5.0;
 
-            double converted = QuantityLength.Convert(value, LengthUnit.Feet, LengthUnit.Yards);
-            double back = QuantityLength.Convert(converted, LengthUnit.Yards, LengthUnit.Feet);
+            var q = new Quantity<LengthUnit>(value, LengthUnit.Feet);
+            double converted = q.ConvertTo(LengthUnit.Yards).Value;
+            double back = new Quantity<LengthUnit>(converted, LengthUnit.Yards)
+                                .ConvertTo(LengthUnit.Feet)
+                                .Value;
 
             Assert.AreEqual(value, back, Epsilon);
         }
@@ -51,14 +62,18 @@ namespace QuantityMeasurementTests.Models
         [TestMethod]
         public void testConversion_ZeroValue()
         {
-            double result = QuantityLength.Convert(0.0, LengthUnit.Feet, LengthUnit.Inches);
+            var q = new Quantity<LengthUnit>(0.0, LengthUnit.Feet);
+            double result = q.ConvertTo(LengthUnit.Inches).Value;
+
             Assert.AreEqual(0.0, result);
         }
 
         [TestMethod]
         public void testConversion_NegativeValue()
         {
-            double result = QuantityLength.Convert(-1.0, LengthUnit.Feet, LengthUnit.Inches);
+            var q = new Quantity<LengthUnit>(-1.0, LengthUnit.Feet);
+            double result = q.ConvertTo(LengthUnit.Inches).Value;
+
             Assert.AreEqual(-12.0, result, Epsilon);
         }
 
@@ -67,7 +82,9 @@ namespace QuantityMeasurementTests.Models
         {
             try
             {
-                QuantityLength.Convert(double.NaN, LengthUnit.Feet, LengthUnit.Inches);
+                var q = new Quantity<LengthUnit>(double.NaN, LengthUnit.Feet);
+                q.ConvertTo(LengthUnit.Inches);
+
                 Assert.Fail("Expected ArgumentException was not thrown.");
             }
             catch (ArgumentException)

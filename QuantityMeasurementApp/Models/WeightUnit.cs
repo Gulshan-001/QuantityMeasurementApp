@@ -9,9 +9,9 @@ namespace QuantityMeasurementApp.Models
         Pound
     }
 
-    public static class WeightUnitExtensions
+    public static class WeightUnitBehavior
     {
-        private static double GetFactor(this WeightUnit unit)
+        public static double GetConversionFactor(this WeightUnit unit)
         {
             return unit switch
             {
@@ -27,7 +27,7 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(value))
                 throw new ArgumentException("Value must be finite.");
 
-            return value * unit.GetFactor();
+            return value * unit.GetConversionFactor();
         }
 
         public static double ConvertFromBaseUnit(this WeightUnit unit, double baseValue)
@@ -35,7 +35,10 @@ namespace QuantityMeasurementApp.Models
             if (!double.IsFinite(baseValue))
                 throw new ArgumentException("Base value must be finite.");
 
-            return baseValue / unit.GetFactor();
+            return baseValue / unit.GetConversionFactor();
         }
+
+        public static string GetUnitName(this WeightUnit unit)
+            => unit.ToString();
     }
 }

@@ -1,6 +1,5 @@
 using QuantityMeasurementApp.Helpers;
 using QuantityMeasurementApp.Models;
-using QuantityMeasurementApp.Services;
 
 namespace QuantityMeasurementApp.UI
 {
@@ -8,8 +7,6 @@ namespace QuantityMeasurementApp.UI
     {
         public static void Start()
         {
-            var service = new QuantityMeasurementService();
-
             while (true)
             {
                 Console.WriteLine("\n==== Quantity Measurement Menu ====");
@@ -27,7 +24,7 @@ namespace QuantityMeasurementApp.UI
                 switch (option)
                 {
                     case "1":
-                        CompareLength(service);
+                        CompareLength();
                         break;
                     case "2":
                         ConvertLength();
@@ -55,13 +52,12 @@ namespace QuantityMeasurementApp.UI
 
         // ===================== LENGTH SECTION =====================
 
-        private static void CompareLength(QuantityMeasurementService service)
+        private static void CompareLength()
         {
             if (!ReadLength(out var q1) || !ReadLength(out var q2))
                 return;
 
-            bool result = service.AreEqual(q1.Value, q1.Unit, q2.Value, q2.Unit);
-            Console.WriteLine($"Equal: {result}");
+            Console.WriteLine($"Equal: {q1.Equals(q2)}");
         }
 
         private static void ConvertLength()
@@ -70,9 +66,7 @@ namespace QuantityMeasurementApp.UI
                 return;
 
             Console.Write("Enter target unit (Feet/Inches/Yards/Centimeters): ");
-            string? targetInput = Console.ReadLine();
-
-            if (!Enum.TryParse(targetInput, true, out LengthUnit targetUnit))
+            if (!Enum.TryParse(Console.ReadLine(), true, out LengthUnit targetUnit))
             {
                 Console.WriteLine("Invalid target unit.");
                 return;
@@ -89,41 +83,40 @@ namespace QuantityMeasurementApp.UI
                 return;
 
             Console.Write("Enter target unit (Feet/Inches/Yards/Centimeters): ");
-            string? targetInput = Console.ReadLine();
-
-            if (!Enum.TryParse(targetInput, true, out LengthUnit targetUnit))
+            if (!Enum.TryParse(Console.ReadLine(), true, out LengthUnit targetUnit))
             {
                 Console.WriteLine("Invalid target unit.");
                 return;
             }
 
-            var result = QuantityLength.Add(q1, q2, targetUnit);
+            var result = q1.Add(q2, targetUnit);
 
             Console.WriteLine($"Result: {result.Value} {result.Unit}");
         }
 
-        private static bool ReadLength(out QuantityLength quantity)
+        private static bool ReadLength(out Quantity<LengthUnit> quantity)
         {
             quantity = null!;
 
             Console.Write("Enter value: ");
-            string? valueInput = Console.ReadLine();
-
-            Console.Write("Enter unit (Feet/Inches/Yards/Centimeters): ");
-            string? unitInput = Console.ReadLine();
-
-            if (!InputHelper.TryParseDouble(valueInput, out double value) ||
-                !Enum.TryParse(unitInput, true, out LengthUnit unit))
+            if (!InputHelper.TryParseDouble(Console.ReadLine(), out double value))
             {
-                Console.WriteLine("Invalid value or unit.");
+                Console.WriteLine("Invalid value.");
                 return false;
             }
 
-            quantity = new QuantityLength(value, unit);
+            Console.Write("Enter unit (Feet/Inches/Yards/Centimeters): ");
+            if (!Enum.TryParse(Console.ReadLine(), true, out LengthUnit unit))
+            {
+                Console.WriteLine("Invalid unit.");
+                return false;
+            }
+
+            quantity = new Quantity<LengthUnit>(value, unit);
             return true;
         }
 
-        // ===================== WEIGHT SECTION (UC9) =====================
+        // ===================== WEIGHT SECTION =====================
 
         private static void CompareWeight()
         {
@@ -139,9 +132,7 @@ namespace QuantityMeasurementApp.UI
                 return;
 
             Console.Write("Enter target unit (Kilogram/Gram/Pound): ");
-            string? targetInput = Console.ReadLine();
-
-            if (!Enum.TryParse(targetInput, true, out WeightUnit targetUnit))
+            if (!Enum.TryParse(Console.ReadLine(), true, out WeightUnit targetUnit))
             {
                 Console.WriteLine("Invalid target unit.");
                 return;
@@ -158,37 +149,36 @@ namespace QuantityMeasurementApp.UI
                 return;
 
             Console.Write("Enter target unit (Kilogram/Gram/Pound): ");
-            string? targetInput = Console.ReadLine();
-
-            if (!Enum.TryParse(targetInput, true, out WeightUnit targetUnit))
+            if (!Enum.TryParse(Console.ReadLine(), true, out WeightUnit targetUnit))
             {
                 Console.WriteLine("Invalid target unit.");
                 return;
             }
 
-            var result = QuantityWeight.Add(w1, w2, targetUnit);
+            var result = w1.Add(w2, targetUnit);
 
             Console.WriteLine($"Result: {result.Value} {result.Unit}");
         }
 
-        private static bool ReadWeight(out QuantityWeight weight)
+        private static bool ReadWeight(out Quantity<WeightUnit> weight)
         {
             weight = null!;
 
             Console.Write("Enter value: ");
-            string? valueInput = Console.ReadLine();
-
-            Console.Write("Enter unit (Kilogram/Gram/Pound): ");
-            string? unitInput = Console.ReadLine();
-
-            if (!InputHelper.TryParseDouble(valueInput, out double value) ||
-                !Enum.TryParse(unitInput, true, out WeightUnit unit))
+            if (!InputHelper.TryParseDouble(Console.ReadLine(), out double value))
             {
-                Console.WriteLine("Invalid value or unit.");
+                Console.WriteLine("Invalid value.");
                 return false;
             }
 
-            weight = new QuantityWeight(value, unit);
+            Console.Write("Enter unit (Kilogram/Gram/Pound): ");
+            if (!Enum.TryParse(Console.ReadLine(), true, out WeightUnit unit))
+            {
+                Console.WriteLine("Invalid unit.");
+                return false;
+            }
+
+            weight = new Quantity<WeightUnit>(value, unit);
             return true;
         }
     }
