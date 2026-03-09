@@ -48,6 +48,54 @@ namespace QuantityMeasurementApp.Models
             throw new ArgumentException("Unsupported unit type.");
         }
 
+        // ---------------- ENUM FOR ARITHMETIC ----------------
+
+        private enum ArithmeticOperation
+        {
+            ADD,
+            SUBTRACT,
+            DIVIDE
+        }
+
+        // ---------------- VALIDATION HELPER ----------------
+
+        private void ValidateArithmeticOperands(Quantity<U> other, U? targetUnit, bool targetRequired)
+        {
+            if (other is null)
+                throw new ArgumentException("Other quantity cannot be null.");
+
+            if (!double.IsFinite(this.Value) || !double.IsFinite(other.Value))
+                throw new ArgumentException("Values must be finite.");
+
+            if (targetRequired && targetUnit is null)
+                throw new ArgumentException("Target unit cannot be null.");
+
+            if (this.Unit.GetType() != other.Unit.GetType())
+                throw new ArgumentException("Cross-category operations not allowed.");
+        }
+
+        // ---------------- CORE ARITHMETIC HELPER ----------------
+
+        private double PerformBaseArithmetic(Quantity<U> other, ArithmeticOperation operation)
+        {
+            double base1 = this.ConvertToBase();
+            double base2 = other.ConvertToBase();
+
+            return operation switch
+            {
+                ArithmeticOperation.ADD => base1 + base2,
+
+                ArithmeticOperation.SUBTRACT => base1 - base2,
+
+                ArithmeticOperation.DIVIDE =>
+                    Math.Abs(base2) < Epsilon
+                        ? throw new ArithmeticException("Division by zero quantity.")
+                        : base1 / base2,
+
+                _ => throw new ArgumentException("Unsupported operation.")
+            };
+        }
+
         // ---------------- CONVERSION ----------------
 
         public Quantity<U> ConvertTo(U targetUnit)
@@ -67,20 +115,18 @@ namespace QuantityMeasurementApp.Models
 
         public Quantity<U> Add(Quantity<U> other, U targetUnit)
         {
-            if (other is null)
-                throw new ArgumentException("Other quantity cannot be null.");
+            ValidateArithmeticOperands(other, targetUnit, true);
 
-            double base1 = ConvertToBase();
-            double base2 = other.ConvertToBase();
+            double baseResult = PerformBaseArithmetic(other, ArithmeticOperation.ADD);
 
-            double sumBase = base1 + base2;
+            double result = ConvertFromBase(baseResult, targetUnit);
 
-            double result = ConvertFromBase(sumBase, targetUnit);
+            result = Math.Round(result, 2);
 
             return new Quantity<U>(result, targetUnit);
         }
 
-        // ---------------- SUBTRACTION (UC12) ----------------
+        // ---------------- SUBTRACTION ----------------
 
         public Quantity<U> Subtract(Quantity<U> other)
         {
@@ -89,35 +135,24 @@ namespace QuantityMeasurementApp.Models
 
         public Quantity<U> Subtract(Quantity<U> other, U targetUnit)
         {
-            if (other is null)
-                throw new ArgumentException("Other quantity cannot be null.");
+            ValidateArithmeticOperands(other, targetUnit, true);
 
-            double base1 = ConvertToBase();
-            double base2 = other.ConvertToBase();
+            double baseResult = PerformBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
 
-            double resultBase = base1 - base2;
-
-            double result = ConvertFromBase(resultBase, targetUnit);
+            double result = ConvertFromBase(baseResult, targetUnit);
 
             result = Math.Round(result, 2);
 
             return new Quantity<U>(result, targetUnit);
         }
 
-        // ---------------- DIVISION (UC12) ----------------
+        // ---------------- DIVISION ----------------
 
         public double Divide(Quantity<U> other)
         {
-            if (other is null)
-                throw new ArgumentException("Other quantity cannot be null.");
+            ValidateArithmeticOperands(other, null, false);
 
-            double base1 = ConvertToBase();
-            double base2 = other.ConvertToBase();
-
-            if (Math.Abs(base2) < Epsilon)
-                throw new ArithmeticException("Division by zero quantity.");
-
-            return base1 / base2;
+            return PerformBaseArithmetic(other, ArithmeticOperation.DIVIDE);
         }
 
         // ---------------- EQUALITY ----------------
