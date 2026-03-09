@@ -31,6 +31,10 @@ namespace QuantityMeasurementApp.Models
             if (Unit is VolumeUnit volume)
                 return volume.ConvertToBaseUnit(Value);
 
+            // UC14 support
+            if (Unit is TemperatureUnit temp)
+                return temp.ConvertToBaseUnit(Value);
+
             throw new ArgumentException("Unsupported unit type.");
         }
 
@@ -44,6 +48,10 @@ namespace QuantityMeasurementApp.Models
 
             if (targetUnit is VolumeUnit volume)
                 return volume.ConvertFromBaseUnit(baseValue);
+
+            // UC14 support
+            if (targetUnit is TemperatureUnit temp)
+                return temp.ConvertFromBaseUnit(baseValue);
 
             throw new ArgumentException("Unsupported unit type.");
         }
@@ -60,19 +68,23 @@ namespace QuantityMeasurementApp.Models
         // ---------------- VALIDATION HELPER ----------------
 
         private void ValidateArithmeticOperands(Quantity<U> other, U? targetUnit, bool targetRequired)
-        {
-            if (other is null)
-                throw new ArgumentException("Other quantity cannot be null.");
+{
+    if (other is null)
+        throw new ArgumentException("Other quantity cannot be null.");
 
-            if (!double.IsFinite(this.Value) || !double.IsFinite(other.Value))
-                throw new ArgumentException("Values must be finite.");
+    if (!double.IsFinite(this.Value) || !double.IsFinite(other.Value))
+        throw new ArgumentException("Values must be finite.");
 
-            if (targetRequired && targetUnit is null)
-                throw new ArgumentException("Target unit cannot be null.");
+    if (targetRequired && targetUnit is null)
+        throw new ArgumentException("Target unit cannot be null.");
 
-            if (this.Unit.GetType() != other.Unit.GetType())
-                throw new ArgumentException("Cross-category operations not allowed.");
-        }
+    if (this.Unit.GetType() != other.Unit.GetType())
+        throw new ArgumentException("Cross-category operations not allowed.");
+
+    // UC14: block temperature arithmetic
+    if (Unit is TemperatureUnit)
+        throw new InvalidOperationException("Temperature does not support arithmetic operations.");
+}
 
         // ---------------- CORE ARITHMETIC HELPER ----------------
 
@@ -121,8 +133,6 @@ namespace QuantityMeasurementApp.Models
 
             double result = ConvertFromBase(baseResult, targetUnit);
 
-            result = Math.Round(result, 2);
-
             return new Quantity<U>(result, targetUnit);
         }
 
@@ -140,8 +150,6 @@ namespace QuantityMeasurementApp.Models
             double baseResult = PerformBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
 
             double result = ConvertFromBase(baseResult, targetUnit);
-
-            result = Math.Round(result, 2);
 
             return new Quantity<U>(result, targetUnit);
         }
