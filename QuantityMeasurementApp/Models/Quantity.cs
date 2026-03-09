@@ -21,26 +21,32 @@ namespace QuantityMeasurementApp.Models
         // ---------------- INTERNAL BASE CONVERSION ----------------
 
         private double ConvertToBase()
-        {
-            if (Unit is LengthUnit lengthUnit)
-                return lengthUnit.ConvertToBaseUnit(Value);
+{
+    if (Unit is LengthUnit length)
+        return length.ConvertToBaseUnit(Value);
 
-            if (Unit is WeightUnit weightUnit)
-                return weightUnit.ConvertToBaseUnit(Value);
+    if (Unit is WeightUnit weight)
+        return weight.ConvertToBaseUnit(Value);
 
-            throw new ArgumentException("Unsupported unit type.");
-        }
+    if (Unit is VolumeUnit volume)
+        return volume.ConvertToBaseUnit(Value);
 
-        private static double ConvertFromBase(U targetUnit, double baseValue)
-        {
-            if (targetUnit is LengthUnit lengthUnit)
-                return lengthUnit.ConvertFromBaseUnit(baseValue);
+    throw new ArgumentException("Unsupported unit type.");
+}
 
-            if (targetUnit is WeightUnit weightUnit)
-                return weightUnit.ConvertFromBaseUnit(baseValue);
+private static double ConvertFromBase(U unit, double baseValue)
+{
+    if (unit is LengthUnit length)
+        return length.ConvertFromBaseUnit(baseValue);
 
-            throw new ArgumentException("Unsupported unit type.");
-        }
+    if (unit is WeightUnit weight)
+        return weight.ConvertFromBaseUnit(baseValue);
+
+    if (unit is VolumeUnit volume)
+        return volume.ConvertFromBaseUnit(baseValue);
+
+    throw new ArgumentException("Unsupported unit type.");
+}
 
         // ---------------- CONVERSION ----------------
 
