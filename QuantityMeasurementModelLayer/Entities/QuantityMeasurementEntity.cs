@@ -1,40 +1,21 @@
-using System;
-
 namespace QuantityMeasurementModelLayer.Entities
 {
-    [Serializable]
     public class QuantityMeasurementEntity
     {
-        public string OperationType { get; }
-        public string Operand1 { get; }
-        public string Operand2 { get; }
-        public string Result { get; }
-        public bool HasError { get; }
-        public string ErrorMessage { get; }
+        public int Id { get; set; }
 
-        public QuantityMeasurementEntity(string operationType, string operand1, string operand2, string result)
-        {
-            OperationType = operationType;
-            Operand1 = operand1;
-            Operand2 = operand2;
-            Result = result;
-            HasError = false;
-            ErrorMessage = null;
-        }
+        public string OperationType { get; set; }      // Add, Convert, etc
+        public int OperationCode { get; set; }         // 0–4
 
-        public QuantityMeasurementEntity(string operationType, string errorMessage)
-        {
-            OperationType = operationType;
-            HasError = true;
-            ErrorMessage = errorMessage;
-        }
+        public string InputType { get; set; }          // Length, Weight, etc
+        public string OutputType { get; set; }         // same or target
 
-        public override string ToString()
-        {
-            if (HasError)
-                return $"Operation: {OperationType} | ERROR: {ErrorMessage}";
+        public string InputData { get; set; }          // "5 Feet + 10 Feet"
+        public string ResultData { get; set; }         // "15 Feet"
 
-            return $"Operation: {OperationType} | {Operand1} , {Operand2} => Result: {Result}";
-        }
+        public bool IsSuccess { get; set; }
+        public string ErrorMessage { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

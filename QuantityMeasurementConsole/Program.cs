@@ -2,23 +2,25 @@
 using QuantityMeasurementBusinessLayer.Services;
 using QuantityMeasurementConsole.Controllers;
 using QuantityMeasurementConsole.UI;
-using QuantityMeasurementConsole.Interfaces;
+using QuantityMeasurementRepositoryLayer.Interfaces;
 
-namespace QuantityMeasurementConsole
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main()
-        {
-            var repository = QuantityMeasurementCacheRepository.GetInstance();
+        //  Choose repository (SQL or Cache)
+        IQuantityMeasurementRepository repository = new SqlQuantityMeasurementRepository();
+        // IQuantityMeasurementRepository repository = new QuantityMeasurementCacheRepository();
 
-            var service = new QuantityMeasurementServiceImpl(repository);
+        //  Service
+        var service = new QuantityMeasurementServiceImpl(repository);
 
-            var controller = new QuantityMeasurementController(service);
+        //  Controller
+        var controller = new QuantityMeasurementController(service);
 
-            IMenu menu = new Menu(controller);
+        //  Menu (IMPORTANT FIX)
+        var menu = new Menu(controller, repository);
 
-            menu.Start();
-        }
+        menu.Start();
     }
 }

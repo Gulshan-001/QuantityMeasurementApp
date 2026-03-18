@@ -2,6 +2,7 @@ using QuantityMeasurementBusinessLayer.Interfaces;
 using QuantityMeasurementBusinessLayer.Exceptions;
 using QuantityMeasurementRepositoryLayer.Interfaces;
 using QuantityMeasurementModelLayer.DTO;
+using QuantityMeasurementModelLayer.Entities;
 
 namespace QuantityMeasurementBusinessLayer.Services
 {
@@ -16,66 +17,174 @@ namespace QuantityMeasurementBusinessLayer.Services
 
         public bool CompareEquality(QuantityDTO q1, QuantityDTO q2)
         {
-            Validate(q1, q2);
+            try
+            {
+                Validate(q1, q2);
 
-            double base1 = ToBase(q1);
-            double base2 = ToBase(q2);
+                double base1 = ToBase(q1);
+                double base2 = ToBase(q2);
 
-            return Math.Abs(base1 - base2) < 0.0001;
+                bool result = Math.Abs(base1 - base2) < 0.0001;
+
+                SaveLog("Compare", 0, q1.MeasurementType,
+                    $"{q1.Value} {q1.Unit} == {q2.Value} {q2.Unit}",
+                    result.ToString(), true, null);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                SaveLog("Compare", 0, q1?.MeasurementType,
+                    $"{q1?.Value} {q1?.Unit} == {q2?.Value} {q2?.Unit}",
+                    null, false, ex.Message);
+
+                throw;
+            }
         }
 
         public QuantityDTO Convert(QuantityDTO source, string targetUnit)
         {
-            if (source == null)
-                throw new QuantityMeasurementException("Source quantity cannot be null");
+            try
+            {
+                if (source == null)
+                    throw new QuantityMeasurementException("Source cannot be null");
 
-            double baseValue = ToBase(source);
+                double baseValue = ToBase(source);
+                double converted = FromBase(baseValue, targetUnit, source.MeasurementType);
 
-            double converted = FromBase(baseValue, targetUnit, source.MeasurementType);
+                var result = new QuantityDTO(converted, targetUnit, source.MeasurementType);
 
-            return new QuantityDTO(converted, targetUnit, source.MeasurementType);
+                SaveLog("Convert", 1, source.MeasurementType,
+                    $"{source.Value} {source.Unit} → {targetUnit}",
+                    $"{converted} {targetUnit}", true, null);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                SaveLog("Convert", 1, source?.MeasurementType,
+                    $"{source?.Value} {source?.Unit}",
+                    null, false, ex.Message);
+
+                throw;
+            }
         }
 
         public QuantityDTO Add(QuantityDTO q1, QuantityDTO q2)
         {
-            Validate(q1, q2);
+            try
+            {
+                Validate(q1, q2);
 
-            if (q1.MeasurementType.Equals("temperature", StringComparison.OrdinalIgnoreCase))
-                throw new QuantityMeasurementException("Temperature arithmetic not supported");
+                if (q1.MeasurementType.Equals("temperature", StringComparison.OrdinalIgnoreCase))
+                    throw new QuantityMeasurementException("Temperature arithmetic not supported");
 
-            double resultBase = ToBase(q1) + ToBase(q2);
+                double resultBase = ToBase(q1) + ToBase(q2);
+                double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
 
-            double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
+                var output = new QuantityDTO(result, q1.Unit, q1.MeasurementType);
 
-            return new QuantityDTO(result, q1.Unit, q1.MeasurementType);
+                SaveLog("Add", 2, q1.MeasurementType,
+                    $"{q1.Value} {q1.Unit} + {q2.Value} {q2.Unit}",
+                    $"{result} {q1.Unit}", true, null);
+
+                return output;
+            }
+            catch (Exception ex)
+            {
+                SaveLog("Add", 2, q1?.MeasurementType,
+                    $"{q1?.Value} {q1?.Unit} + {q2?.Value} {q2?.Unit}",
+                    null, false, ex.Message);
+
+                throw;
+            }
         }
 
         public QuantityDTO Subtract(QuantityDTO q1, QuantityDTO q2)
         {
-            Validate(q1, q2);
+            try
+            {
+                Validate(q1, q2);
 
-            if (q1.MeasurementType.Equals("temperature", StringComparison.OrdinalIgnoreCase))
-                throw new QuantityMeasurementException("Temperature arithmetic not supported");
+                if (q1.MeasurementType.Equals("temperature", StringComparison.OrdinalIgnoreCase))
+                    throw new QuantityMeasurementException("Temperature arithmetic not supported");
 
-            double resultBase = ToBase(q1) - ToBase(q2);
+                double resultBase = ToBase(q1) - ToBase(q2);
+                double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
 
-            double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
+                var output = new QuantityDTO(result, q1.Unit, q1.MeasurementType);
 
-            return new QuantityDTO(result, q1.Unit, q1.MeasurementType);
+                SaveLog("Subtract", 3, q1.MeasurementType,
+                    $"{q1.Value} {q1.Unit} - {q2.Value} {q2.Unit}",
+                    $"{result} {q1.Unit}", true, null);
+
+                return output;
+            }
+            catch (Exception ex)
+            {
+                SaveLog("Subtract", 3, q1?.MeasurementType,
+                    $"{q1?.Value} {q1?.Unit} - {q2?.Value} {q2?.Unit}",
+                    null, false, ex.Message);
+
+                throw;
+            }
         }
 
         public double Divide(QuantityDTO q1, QuantityDTO q2)
         {
-            Validate(q1, q2);
+            try
+            {
+                Validate(q1, q2);
 
-            double base1 = ToBase(q1);
-            double base2 = ToBase(q2);
+                double base1 = ToBase(q1);
+                double base2 = ToBase(q2);
 
-            if (base2 == 0)
-                throw new QuantityMeasurementException("Division by zero");
+                if (base2 == 0)
+                    throw new QuantityMeasurementException("Division by zero");
 
-            return base1 / base2;
+                double result = base1 / base2;
+
+                SaveLog("Divide", 4, q1.MeasurementType,
+                    $"{q1.Value} {q1.Unit} / {q2.Value} {q2.Unit}",
+                    result.ToString(), true, null);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                SaveLog("Divide", 4, q1?.MeasurementType,
+                    $"{q1?.Value} {q1?.Unit} / {q2?.Value} {q2?.Unit}",
+                    null, false, ex.Message);
+
+                throw;
+            }
         }
+
+        // ============================
+        // 🔥 NEW LOGGING METHOD
+        // ============================
+
+        private void SaveLog(string opType, int opCode, string type,
+            string input, string result, bool success, string error)
+        {
+            var entity = new QuantityMeasurementEntity
+            {
+                OperationType = opType,
+                OperationCode = opCode,
+                InputType = type,
+                OutputType = type,
+                InputData = input,
+                ResultData = result,
+                IsSuccess = success,
+                ErrorMessage = error
+            };
+
+            _repository.Save(entity);
+        }
+
+        // ============================
+        // (UNCHANGED CORE LOGIC)
+        // ============================
 
         private void Validate(QuantityDTO q1, QuantityDTO q2)
         {

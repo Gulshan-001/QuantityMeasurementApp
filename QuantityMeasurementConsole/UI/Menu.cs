@@ -1,12 +1,14 @@
 using QuantityMeasurementConsole.Controllers;
 using QuantityMeasurementConsole.Interfaces;
 using QuantityMeasurementModelLayer.DTO;
+using QuantityMeasurementRepositoryLayer.Interfaces;
 
 namespace QuantityMeasurementConsole.UI
 {
     public class Menu : IMenu
     {
         private readonly QuantityMeasurementController _controller;
+        private readonly IQuantityMeasurementRepository _repository;
 
         private readonly string[] _mainMenu =
         {
@@ -19,16 +21,18 @@ namespace QuantityMeasurementConsole.UI
             "Exit"
         };
 
-        public Menu(QuantityMeasurementController controller)
+        public Menu(QuantityMeasurementController controller,
+                    IQuantityMeasurementRepository repository)
         {
             _controller = controller;
+            _repository = repository;
         }
 
         public void Start()
         {
             while (true)
             {
-                int choice = SelectFromMenu("QUANTITY MEASUREMENT TERMINAL (UC15)", _mainMenu);
+                int choice = SelectFromMenu("QUANTITY MEASUREMENT TERMINAL (UC16)", _mainMenu);
 
                 if (choice == -1) continue;
 
@@ -258,10 +262,70 @@ namespace QuantityMeasurementConsole.UI
             Pause();
         }
 
+        // ============================
+        //  HISTORY (UC16)
+        // ============================
+
         private void ShowHistory()
+{
+    Console.Clear();
+
+    var history = _repository.GetAll();
+
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine("=========== OPERATION HISTORY ===========\n");
+    Console.ResetColor();
+
+    if (history.Count == 0)
+    {
+        Console.WriteLine("No records found.");
+        Pause();
+        return;
+    }
+
+    foreach (var item in history)
+    {
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"ID: {item.Id}");
+        Console.ResetColor();
+
+        Console.WriteLine($"Type: {item.OperationType} ({item.InputType})");
+
+        Console.WriteLine($"Input: {item.InputData}");
+
+        if (!string.IsNullOrEmpty(item.ResultData))
+            Console.WriteLine($"Result: {item.ResultData}");
+
+        Console.WriteLine($"Status: {(item.IsSuccess ? "SUCCESS" : "FAILED")}");
+
+        if (!string.IsNullOrEmpty(item.ErrorMessage))
         {
-            Console.WriteLine("\nHistory feature coming soon...");
-            Pause();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error: {item.ErrorMessage}");
+            Console.ResetColor();
+        }
+
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"Time: {item.CreatedAt}");
+        Console.ResetColor();
+
+        Console.WriteLine("----------------------------------------");
+    }
+
+    Pause();
+}
+
+        private string GetOperationName(int code)
+        {
+            return code switch
+            {
+                0 => "Compare",
+                1 => "Convert",
+                2 => "Add",
+                3 => "Subtract",
+                4 => "Divide",
+                _ => "Unknown"
+            };
         }
 
         private void Pause()
