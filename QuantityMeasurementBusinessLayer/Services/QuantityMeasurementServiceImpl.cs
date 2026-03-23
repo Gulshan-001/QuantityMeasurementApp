@@ -3,6 +3,8 @@ using QuantityMeasurementBusinessLayer.Exceptions;
 using QuantityMeasurementRepositoryLayer.Interfaces;
 using QuantityMeasurementModelLayer.DTO;
 using QuantityMeasurementModelLayer.Entities;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QuantityMeasurementBusinessLayer.Services
 {
@@ -276,5 +278,22 @@ namespace QuantityMeasurementBusinessLayer.Services
                 _ => throw new QuantityMeasurementException("Unknown measurement type")
             };
         }
+        public List<QuantityMeasurementEntity> GetAllHistory()
+{
+    return _repository.GetAll();
+}
+
+public List<QuantityMeasurementEntity> GetByOperation(string operation)
+{
+    return _repository.GetAll()
+                      .Where(x => x.OperationType.ToLower() == operation.ToLower())
+                      .ToList();
+}
+
+public int GetOperationCount(string operation)
+{
+    return _repository.GetAll()
+                      .Count(x => x.OperationType.ToLower() == operation.ToLower());
+}
     }
 }

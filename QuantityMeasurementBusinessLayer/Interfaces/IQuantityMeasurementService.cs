@@ -1,5 +1,6 @@
 using QuantityMeasurementModelLayer.DTO;
-
+using QuantityMeasurementModelLayer.Entities;
+using System.Collections.Generic;
 namespace QuantityMeasurementBusinessLayer.Interfaces
 {
     public interface IQuantityMeasurementService
@@ -13,5 +14,11 @@ namespace QuantityMeasurementBusinessLayer.Interfaces
         QuantityDTO Subtract(QuantityDTO q1, QuantityDTO q2);
 
         double Divide(QuantityDTO q1, QuantityDTO q2);
+
+        List<QuantityMeasurementEntity> GetAllHistory();
+
+        List<QuantityMeasurementEntity> GetByOperation(string operation);
+
+        int GetOperationCount(string operation);
     }
 }

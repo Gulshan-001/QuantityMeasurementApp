@@ -1,26 +1,34 @@
-﻿using QuantityMeasurementRepositoryLayer.Repositories;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+using QuantityMeasurementBusinessLayer.Interfaces;
 using QuantityMeasurementBusinessLayer.Services;
-using QuantityMeasurementConsole.Controllers;
-using QuantityMeasurementConsole.UI;
 using QuantityMeasurementRepositoryLayer.Interfaces;
+using QuantityMeasurementRepositoryLayer.Repositories;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        //  Choose repository (SQL or Cache)
-        IQuantityMeasurementRepository repository = new SqlQuantityMeasurementRepository();
-        // IQuantityMeasurementRepository repository = new QuantityMeasurementCacheRepository();
+var builder = WebApplication.CreateBuilder(args);
 
-        //  Service
-        var service = new QuantityMeasurementServiceImpl(repository);
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-        //  Controller
-        var controller = new QuantityMeasurementController(service);
+// DI 
+builder.Services.AddScoped<IQuantityMeasurementService, QuantityMeasurementServiceImpl>();
+builder.Services.AddScoped<IQuantityMeasurementRepository, SqlQuantityMeasurementRepository>();
 
-        //  Menu (IMPORTANT FIX)
-        var menu = new Menu(controller, repository);
+var app = builder.Build();
 
-        menu.Start();
-    }
-}
+// Middleware
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseMiddleware<QuantityMeasurementConsole.Middleware.ExceptionMiddleware>();
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
