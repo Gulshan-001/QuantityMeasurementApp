@@ -1,8 +1,10 @@
 using QuantityMeasurementBusinessLayer.Interfaces;
 using QuantityMeasurementBusinessLayer.Exceptions;
-using QuantityMeasurementRepositoryLayer.Interfaces;
-using QuantityMeasurementModelLayer.DTO;
-using QuantityMeasurementModelLayer.Entities;
+using QuantityMeasurementModel.DTOs;
+using QuantityMeasurementModel.Entities;
+using QuantityMeasurementModel.Models;
+using QuantityMeasurementModel.Enums;
+using QuantityMeasurementRepository.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -54,7 +56,12 @@ namespace QuantityMeasurementBusinessLayer.Services
                 double baseValue = ToBase(source);
                 double converted = FromBase(baseValue, targetUnit, source.MeasurementType);
 
-                var result = new QuantityDTO(converted, targetUnit, source.MeasurementType);
+                var result = new QuantityDTO
+                {
+                    Value = converted,
+                    Unit = targetUnit,
+                    MeasurementType = source.MeasurementType
+                };
 
                 SaveLog("Convert", 1, source.MeasurementType,
                     $"{source.Value} {source.Unit} → {targetUnit}",
@@ -84,7 +91,12 @@ namespace QuantityMeasurementBusinessLayer.Services
                 double resultBase = ToBase(q1) + ToBase(q2);
                 double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
 
-                var output = new QuantityDTO(result, q1.Unit, q1.MeasurementType);
+                var output = new QuantityDTO
+                {
+                    Value = result,
+                    Unit = q1.Unit,
+                    MeasurementType = q1.MeasurementType
+                };
 
                 SaveLog("Add", 2, q1.MeasurementType,
                     $"{q1.Value} {q1.Unit} + {q2.Value} {q2.Unit}",
@@ -114,7 +126,12 @@ namespace QuantityMeasurementBusinessLayer.Services
                 double resultBase = ToBase(q1) - ToBase(q2);
                 double result = FromBase(resultBase, q1.Unit, q1.MeasurementType);
 
-                var output = new QuantityDTO(result, q1.Unit, q1.MeasurementType);
+                var output = new QuantityDTO
+                {
+                    Value = result,
+                    Unit = q1.Unit,
+                    MeasurementType = q1.MeasurementType
+                };
 
                 SaveLog("Subtract", 3, q1.MeasurementType,
                     $"{q1.Value} {q1.Unit} - {q2.Value} {q2.Unit}",
@@ -162,31 +179,23 @@ namespace QuantityMeasurementBusinessLayer.Services
             }
         }
 
-        // ============================
-        // 🔥 NEW LOGGING METHOD
-        // ============================
-
         private void SaveLog(string opType, int opCode, string type,
-            string input, string result, bool success, string error)
-        {
-            var entity = new QuantityMeasurementEntity
-            {
-                OperationType = opType,
-                OperationCode = opCode,
-                InputType = type,
-                OutputType = type,
-                InputData = input,
-                ResultData = result,
-                IsSuccess = success,
-                ErrorMessage = error
-            };
+    string input, string result, bool success, string error)
+{
+    var entity = new QuantityMeasurementEntity
+    {
+        OperationType = opType,
+        OperationCode = opCode,
+        InputType = type,
+        OutputType = type,
+        InputData = input,
+        ResultData = result,
+        IsSuccess = success,
+        ErrorMessage = error ?? ""   // ✅ FIX (NO NULL)
+    };
 
-            _repository.Save(entity);
-        }
-
-        // ============================
-        // (UNCHANGED CORE LOGIC)
-        // ============================
+    _repository.Save(entity);
+}
 
         private void Validate(QuantityDTO q1, QuantityDTO q2)
         {
@@ -278,22 +287,23 @@ namespace QuantityMeasurementBusinessLayer.Services
                 _ => throw new QuantityMeasurementException("Unknown measurement type")
             };
         }
+
         public List<QuantityMeasurementEntity> GetAllHistory()
-{
-    return _repository.GetAll();
-}
+        {
+            return _repository.GetAll();
+        }
 
-public List<QuantityMeasurementEntity> GetByOperation(string operation)
-{
-    return _repository.GetAll()
-                      .Where(x => x.OperationType.ToLower() == operation.ToLower())
-                      .ToList();
-}
+        public List<QuantityMeasurementEntity> GetByOperation(string operation)
+        {
+            return _repository.GetAll()
+                              .Where(x => x.OperationType.ToLower() == operation.ToLower())
+                              .ToList();
+        }
 
-public int GetOperationCount(string operation)
-{
-    return _repository.GetAll()
-                      .Count(x => x.OperationType.ToLower() == operation.ToLower());
-}
+        public int GetOperationCount(string operation)
+        {
+            return _repository.GetAll()
+                              .Count(x => x.OperationType.ToLower() == operation.ToLower());
+        }
     }
 }

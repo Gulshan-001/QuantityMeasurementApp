@@ -1,4 +1,14 @@
 <Solution>
+  <Folder Name="/QuantityMeasurementModel/">
+    <Project Path="QuantityMeasurementModel/QuantityMeasurementModelLayer.csproj" />
+  </Folder>
+  <Folder Name="/QuantityMeasurementRepository/">
+    <Project Path="QuantityMeasurementRepository/QuantityMeasurementRepositoryLayer.csproj" />
+  </Folder>
+  <Folder Name="/QuantityMeasurementWebAPI/">
+    <Project Path="QuantityMeasurementWebAPI/QuantityMeasurementConsole.csproj" />
+  </Folder>
   <Project Path="QuantityMeasurementApp/QuantityMeasurementApp.csproj" />
+  <Project Path="QuantityMeasurementBusinessLayer/QuantityMeasurementBusinessLayer.csproj" />
   <Project Path="QuantityMeasurementTests/QuantityMeasurementTests.csproj" />
 </Solution>

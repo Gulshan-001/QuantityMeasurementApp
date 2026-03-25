@@ -1,5 +1,9 @@
-using QuantityMeasurementModelLayer.DTO;
-using QuantityMeasurementModelLayer.Entities;
+using QuantityMeasurementModel.DTOs;
+using QuantityMeasurementModel.Entities;
+using QuantityMeasurementModel.Models;
+using QuantityMeasurementModel.Enums;
+
+using QuantityMeasurementRepository.Interfaces;
 using System.Collections.Generic;
 namespace QuantityMeasurementBusinessLayer.Interfaces
 {
