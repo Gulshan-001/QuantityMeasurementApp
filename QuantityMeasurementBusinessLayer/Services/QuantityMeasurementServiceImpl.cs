@@ -179,23 +179,24 @@ namespace QuantityMeasurementBusinessLayer.Services
             }
         }
 
-        private void SaveLog(string opType, int opCode, string type,
-    string input, string result, bool success, string error)
+        private void SaveLog(string opType, int opCode, string? type,
+    string input, string? result, bool success, string? error)
 {
     var entity = new QuantityMeasurementEntity
     {
         OperationType = opType,
         OperationCode = opCode,
-        InputType = type,
-        OutputType = type,
+        InputType = type ?? "",
+        OutputType = type ?? "",
         InputData = input,
-        ResultData = result,
+        ResultData = result ?? "",
         IsSuccess = success,
-        ErrorMessage = error ?? ""   // ✅ FIX (NO NULL)
+        ErrorMessage = error ?? ""   
     };
 
     _repository.Save(entity);
 }
+
 
         private void Validate(QuantityDTO q1, QuantityDTO q2)
         {

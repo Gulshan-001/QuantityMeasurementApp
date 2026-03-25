@@ -1,16 +1,11 @@
 namespace QuantityMeasurementModel.DTOs
 {
-    using System.ComponentModel.DataAnnotations;
+    public class QuantityDTO
+    {
+        public double Value { get; set; }
 
-public class QuantityDTO
-{
-    [Required]
-    public double Value { get; set; }
+        public string Unit { get; set; } = string.Empty;   
 
-    [Required]
-    public string Unit { get; set; }
-
-    [Required]
-    public string MeasurementType { get; set; }
-}
+        public string MeasurementType { get; set; } = string.Empty; 
+    }
 }

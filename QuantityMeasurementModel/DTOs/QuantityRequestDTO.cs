@@ -5,12 +5,11 @@ namespace QuantityMeasurementModel.DTOs
     public class QuantityRequestDTO
     {
         [Required]
-        public QuantityDTO First { get; set; }
+        public QuantityDTO First { get; set; } = null!;
 
         [Required]
-        public QuantityDTO Second { get; set; }
+        public QuantityDTO Second { get; set; } = null!;
 
-        [Required]
-        public string? TargetUnit { get; set; }
+        public string? TargetUnit { get; set; }   
     }
 }

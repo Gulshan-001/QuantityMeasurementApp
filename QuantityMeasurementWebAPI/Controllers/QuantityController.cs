@@ -71,8 +71,7 @@ namespace QuantityMeasurementConsole.Controllers
         [HttpPost("convert")]
         public IActionResult Convert([FromBody] QuantityRequestDTO request)
         {
-            var result = _service.Convert(request.First, request.TargetUnit);
-
+            var result = _service.Convert(request.First, request.TargetUnit!);
             return Ok(new ApiResponse<object>
             {
                 Success = true,
