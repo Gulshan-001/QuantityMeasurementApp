@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuantityMeasurementBusinessLayer.Interfaces;
 using QuantityMeasurementModel.DTOs;
 using QuantityMeasurementModel.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuantityMeasurementConsole.Controllers
 {
@@ -16,6 +17,7 @@ namespace QuantityMeasurementConsole.Controllers
             _service = service;
         }
 
+        [Authorize]
         [HttpPost("compare")]
         public IActionResult Compare([FromBody] QuantityRequestDTO request)
         {
@@ -29,6 +31,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("add")]
         public IActionResult Add([FromBody] QuantityRequestDTO request)
         {
@@ -42,6 +45,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("subtract")]
         public IActionResult Subtract([FromBody] QuantityRequestDTO request)
         {
@@ -55,6 +59,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("divide")]
         public IActionResult Divide([FromBody] QuantityRequestDTO request)
         {
@@ -68,6 +73,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("convert")]
         public IActionResult Convert([FromBody] QuantityRequestDTO request)
         {
@@ -80,6 +86,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpGet("history")]
         public IActionResult GetAllHistory()
         {
@@ -93,6 +100,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpGet("history/operation/{operation}")]
         public IActionResult GetByOperation(string operation)
         {
@@ -106,6 +114,7 @@ namespace QuantityMeasurementConsole.Controllers
             });
         }
 
+        [Authorize]
         [HttpGet("count/{operation}")]
         public IActionResult GetCount(string operation)
         {

@@ -10,4 +10,9 @@
     <ProjectReference Include="..\QuantityMeasurementModel\QuantityMeasurementModelLayer.csproj" />
     <ProjectReference Include="..\QuantityMeasurementRepository\QuantityMeasurementRepositoryLayer.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
+  </ItemGroup>
 </Project>

@@ -11,5 +11,6 @@ namespace QuantityMeasurementRepository.Context
         }
 
         public DbSet<QuantityMeasurementEntity> QuantityMeasurements { get; set; }
+        public DbSet<UserEntity> Users { get; set; }
     }
 }
