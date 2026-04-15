@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +45,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 // DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Dependency Injection
 builder.Services.AddScoped<IQuantityMeasurementRepository, QuantityMeasurementRepository.Repositories.QuantityMeasurementRepository>();
@@ -73,6 +73,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 // Build app
 var app = builder.Build();
 
@@ -83,6 +93,8 @@ app.UseSwaggerUI();
 app.UseMiddleware<QuantityMeasurementConsole.Middleware.ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 app.UseAuthentication();   // MUST come before Authorization
 app.UseAuthorization();
 
