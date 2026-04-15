@@ -86,6 +86,13 @@ builder.Services.AddCors(options =>
 // Build app
 var app = builder.Build();
 
+// Apply Database Migrations on Startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 // Middleware
 app.UseSwagger();
 app.UseSwaggerUI();
