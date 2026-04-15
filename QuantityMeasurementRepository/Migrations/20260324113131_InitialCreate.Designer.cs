@@ -64,7 +64,7 @@ namespace QuantityMeasurementRepositoryLayer.Migrations
 
                     b.Property<string>("ResultData")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
