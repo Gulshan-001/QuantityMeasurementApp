@@ -6,5 +6,6 @@ namespace QuantityMeasurementRepository.Interfaces
     {
         void AddUser(UserEntity user);
         UserEntity? GetByEmail(string email);
+        IEnumerable<UserEntity> GetAllUsers();
     }
 }

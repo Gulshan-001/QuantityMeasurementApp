@@ -34,6 +34,8 @@ namespace QuantityMeasurementConsole.Middleware
                 status = statusCode,
                 error = statusCode == 400 ? "Bad Request" : "Internal Server Error",
                 message = ex.Message,
+                detail = ex.InnerException?.Message,
+                stackTrace = ex.StackTrace, // Helpful for debugging Render issues
                 path = context.Request.Path
             };
 
@@ -42,7 +44,7 @@ namespace QuantityMeasurementConsole.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
-            return context.Response.WriteAsync(ex.InnerException?.Message ?? ex.Message);
+            return context.Response.WriteAsync(json);
         }
     }
 }

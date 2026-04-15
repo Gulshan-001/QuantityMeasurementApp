@@ -33,6 +33,20 @@ namespace QuantityMeasurementWebAPI.Controllers
             });
         }
 
+        [HttpGet("test-db")]
+        public IActionResult TestDb()
+        {
+            try
+            {
+                var userCount = _service.GetUserCount();
+                return Ok(new { success = true, userCount, message = "Database connection and schema verified." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message, detail = ex.InnerException?.Message });
+            }
+        }
+
         [HttpPost("google")]
         public IActionResult GoogleLogin(GoogleLoginDTO dto)
         {

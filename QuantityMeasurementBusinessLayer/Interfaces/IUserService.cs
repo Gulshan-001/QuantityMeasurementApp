@@ -7,5 +7,6 @@ namespace QuantityMeasurementBusinessLayer.Interfaces
         string Register(RegisterDTO dto);
         string Login(LoginDTO dto);
         string GoogleLogin(string idToken);
+        int GetUserCount();
     }
 }

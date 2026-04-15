@@ -26,7 +26,7 @@ namespace QuantityMeasurementBusinessLayer.Services
         {
             var existing = _repo.GetByEmail(dto.Email);
             if (existing != null)
-                throw new Exception("User already exists");
+                throw new ArgumentException("User already exists");
 
             var user = new UserEntity
             {
@@ -44,7 +44,7 @@ namespace QuantityMeasurementBusinessLayer.Services
         {
             var user = _repo.GetByEmail(dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                throw new Exception("Invalid credentials");
+                throw new ArgumentException("Invalid credentials");
 
             return GenerateJwt(user);
         }
@@ -92,6 +92,11 @@ var payload = GoogleJsonWebSignature.ValidateAsync(idToken).Result;
     }
 
     return GenerateJwt(user);
+}
+
+public int GetUserCount()
+{
+    return _repo.GetAllUsers().Count();
 }
     }
 }
