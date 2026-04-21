@@ -1,0 +1,147 @@
+# Quantity Measurement — Microservices docker-compose
+#
+# Services:
+#   postgres         — Shared PostgreSQL 15 (one DB, all tables)
+#   auth-service     — Port 5001 (internal); handles auth/JWT/Google
+#   compare-service  — Port 5002 (internal); handles compare ops
+#   convert-service  — Port 5003 (internal); handles conversions
+#   arithmetic-service — Port 5004 (internal); add/subtract/divide
+#   api-gateway      — Port 5000 (EXPOSED); YARP proxy + history aggregation
+#
+# Frontend (Angular) connects to: http://localhost:5000/api
+# ═══════════════════════════════════════════════════════════════════
+
+networks:
+  qma-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
+services:
+
+  # ─── PostgreSQL (shared, one database) ────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: qma-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quantitydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"           # exposed so you can inspect with pgAdmin
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - qma-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d quantitydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Auth Service (port 5001) ──────────────────────────────────────
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: qma-auth
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:5001
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=quantitydb;Username=postgres;Password=postgres"
+      Jwt__Key: "THIS_IS_MY_SUPER_SECRET_KEY_1234567890"
+      Google__ClientId: "304015743261-v54h23ace8gqdkklh0se9gn11vsjgadi.apps.googleusercontent.com"
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - qma-network
+
+  # ─── Compare Service (port 5002) ───────────────────────────────────
+  compare-service:
+    build:
+      context: ./services/compare-service
+      dockerfile: Dockerfile
+    container_name: qma-compare
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:5002
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=quantitydb;Username=postgres;Password=postgres"
+      Jwt__Key: "THIS_IS_MY_SUPER_SECRET_KEY_1234567890"
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - qma-network
+
+  # ─── Convert Service (port 5003) ───────────────────────────────────
+  convert-service:
+    build:
+      context: ./services/convert-service
+      dockerfile: Dockerfile
+    container_name: qma-convert
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:5003
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=quantitydb;Username=postgres;Password=postgres"
+      Jwt__Key: "THIS_IS_MY_SUPER_SECRET_KEY_1234567890"
+    ports:
+      - "5003:5003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - qma-network
+
+  # ─── Arithmetic Service (port 5004) ────────────────────────────────
+  arithmetic-service:
+    build:
+      context: ./services/arithmetic-service
+      dockerfile: Dockerfile
+    container_name: qma-arithmetic
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:5004
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=quantitydb;Username=postgres;Password=postgres"
+      Jwt__Key: "THIS_IS_MY_SUPER_SECRET_KEY_1234567890"
+    ports:
+      - "5004:5004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - qma-network
+
+  # ─── API Gateway (port 5000 — only port exposed to frontend) ───────
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: qma-gateway
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      Jwt__Key: "THIS_IS_MY_SUPER_SECRET_KEY_1234567890"
+      Services__Auth:       "http://auth-service:5001"
+      Services__Compare:    "http://compare-service:5002"
+      Services__Convert:    "http://convert-service:5003"
+      Services__Arithmetic: "http://arithmetic-service:5004"
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address:       "http://auth-service:5001"
+      ReverseProxy__Clusters__compare-cluster__Destinations__destination1__Address:    "http://compare-service:5002"
+      ReverseProxy__Clusters__convert-cluster__Destinations__destination1__Address:    "http://convert-service:5003"
+      ReverseProxy__Clusters__arithmetic-cluster__Destinations__destination1__Address: "http://arithmetic-service:5004"
+    ports:
+      - "5000:5000"           # ← Angular points HERE
+    depends_on:
+      - auth-service
+      - compare-service
+      - convert-service
+      - arithmetic-service
+    networks:
+      - qma-network
